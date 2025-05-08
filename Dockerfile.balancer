@@ -1,0 +1,13 @@
+FROM golang:1.23 AS build
+
+COPY go.mod go.sum /src/
+COPY balancer /src/balancer
+
+ENV CGO_ENABLED=0
+RUN cd /src && go build -o /balancer balancer/main.go
+
+FROM alpine:3.20
+
+COPY --from=build /balancer /balancer
+
+ENTRYPOINT [ "/balancer" ]

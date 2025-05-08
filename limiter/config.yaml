@@ -1,0 +1,8 @@
+log_level: DEBUG
+db_address: postgres://postgres:password@postgres:5432/postgres
+ratelimiter:
+  capacity: 100
+  update_interval: 1s
+http:
+  address: ":8081"
+  timeout: 5s

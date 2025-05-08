@@ -1,0 +1,13 @@
+FROM golang:1.23 AS build
+
+COPY go.mod go.sum /src/
+COPY serverpool /src/serverpool
+
+ENV CGO_ENABLED=0
+RUN cd /src && go build -o /serverpool serverpool/main.go
+
+FROM alpine:3.20
+
+COPY --from=build /serverpool /serverpool
+
+ENTRYPOINT [ "/serverpool" ]

@@ -1,0 +1,6 @@
+log_level: DEBUG
+servers_urls: "http://localhost:8081,http://localhost:8082,http://localhost:8083"
+healthcheck_interval: 120s
+http:
+  address: ":8080"
+  timeout: 5s

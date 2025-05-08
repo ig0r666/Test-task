@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  balancer:
+    image: balancer:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.balancer
+    container_name: balancer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./balancer/config.yaml:/config.yaml
+    environment:
+      - HTTP_ADDRESS=:8080
+      - LOG_LEVEL=DEBUG
+      - SERVERS_URLS=http://serverpool:8081,http://serverpool:8082,http://serverpool:8083
+      - HEALTHCHECK_INTERVAL=120s
+    depends_on:
+      - serverpool
+  
+  limiter:
+    image: limiter:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.limiter
+    container_name: limiter
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./limiter/config.yaml:/config.yaml
+    environment:
+      - ADDRESS=:8080
+      - DB_ADDRESS=postgres://postgres:password@postgres:5432/postgres
+      - CAPACITY=5
+      - UPDATE_INTERVAL=20s
+    depends_on:
+      postgres:
+        condition: service_healthy
+  
+  serverpool:
+    image: serverpool:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.serverpool
+    container_name: serverpool
+    restart: unless-stopped
+    volumes:
+      - ./serverpool/config.yaml:/config.yaml
+    environment:
+      - URLS=:8081,:8082,:8083
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+volumes:
+  postgres:

@@ -1,0 +1,13 @@
+FROM golang:1.23 AS build
+
+COPY go.mod go.sum /src/
+COPY limiter /src/limiter
+
+ENV CGO_ENABLED=0
+RUN cd /src && go build -o /limiter limiter/main.go
+
+FROM alpine:3.20
+
+COPY --from=build /limiter /limiter
+
+ENTRYPOINT [ "/limiter" ]
