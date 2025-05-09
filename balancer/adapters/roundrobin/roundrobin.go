@@ -56,7 +56,7 @@ func (r *RoundRobin) GetNextServer() core.Server {
 		return nil
 	}
 
-	// Проходим полный "круг" в происках рабочего сервера
+	// Проходим полный "круг" в поиске рабочего сервера
 	idxStart := r.GetNextIndex()
 	idxEnd := len(r.servers) + idxStart
 
