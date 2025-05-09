@@ -29,27 +29,76 @@
 - Дефолтный лимит выставляется в конфиге *capacity* или через переменные окружения *CAPACITY* в compose.yaml.
 - Частота обновления токенов регулируется через *UPDATE_INTERVAL*.
 - CRUD подробно прокомментирован в limiter/adapters/rest/handlers.go
+## Описание эндпоинтов
+### Тестирование лимитера
++ GET /test
+
+  Этот эндпоинт защищен лимитером для регулирования количества запросов от конкретного клиента
+
+### Создать нового клиента
++ POST /clients
   
+  Создает нового клиента с указанным лимитом запросов
+  
+  Параметры запроса:
+  {
+  "client_id": "string",
+  "capacity": int
+  }
+
+### Получить список клиентов
++ GET /clients
+  
+Возвращает список всех клиентов
+### Получение клиента
++ GET /client?client_id={id}
+  
+  Возвращает информацию о конкретном клиенте
+### Обновление клиента
++ PUT /client
+  
+  Обновляет лимит запросов для клиента
+
+  Параметры запроса:
+  {
+  "client_id": "string",
+  "capacity": int
+  }
+### Удаление клиента
++ DELETE /client?client_id={id}
+
+  Удаляет клиента с заданным id
+
 ## Запуск проетка
 Запустить проект:
 ```Makefile 
 make up
+или
+docker compose up --build -d
 ```
 Запустить отдельно балансировщик:
 ```Makefile 
 make balancer-up
+или
+docker compose up --build -d balancer serverpool
 ```
 Запустить отдельно лимитер:
 ```Makefile 
 make limiter-up
+или
+docker compose up --build -d limiter postgres
 ```
 Остановить проект:
 ```Makefile 
 make down
+или
+docker compose down
 ```
 Полная очистка и остановка:
 ```Makefile 
 make clean
+или
+docker compose down -v
 ```
 - В текущей конфигурации, балансировщик будет запущен на 8080 порту, а Limiter на 8081 порту
 
